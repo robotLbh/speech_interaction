@@ -1,10 +1,10 @@
-#include <glog/logging.h>
 #include "speech_interaction_base.h"
 #include "speech_interaction_strategy.h"
 #include <sstream>
 #include <iostream>
 #include <boost/bind.hpp>
 #include <sys/time.h>
+#include <glog/logging.h>
 namespace speech_interaction
 {
     SpeechInteractionBase::SpeechInteractionBase(Sp vis)
@@ -72,8 +72,6 @@ namespace speech_interaction
     }
     int SpeechInteractionBase::speechBroadcasting(const std::string &speech,int type)
     {
-        if(type==2)
-            speechBreaking();
         std::unique_lock<std::mutex> ul(mutex_playlist_);
         switch (type){
             case 2:
@@ -103,7 +101,7 @@ namespace speech_interaction
         changeState(interrupted);
         std::unique_lock<std::mutex> ul_b(mutex_playlist_);
         while(!playlist_.empty()){
-            if(playlist_.front().find("##",0)!=std::string::npos)
+            if(playlist_.back().find("##",0)!=std::string::npos)
                 remove(playlist_.front().c_str());
             playlist_.pop_back();
         }
@@ -169,7 +167,7 @@ namespace speech_interaction
                 {                                                                       
                     std::unique_lock<std::mutex> ul(mutex_playlist_);                   
                     now=playlist_.front();                                      
-                    playlist_.pop_back();                                                    
+                    playlist_.erase(playlist_.begin());                                                    
                 }                                                                       
                 strategy_->speechBroadcasting(now);
                 if(now.find("##",0)!=std::string::npos)
@@ -188,13 +186,10 @@ namespace speech_interaction
     }
     int SpeechInteractionBase::cmdRecognition(const std::vector<std::string>& cmd)
     {
-        //TODO:控制指令识别处理接口。
         return 0;
     }
     int SpeechInteractionBase::stateProcessing(State state)
-    {
-        //TODO:交互状态改变是回调此函数。
-    }
+    {}
     std::string SpeechInteractionBase::randFilename()
     {
         int rand_i=rand()%100000;
