@@ -1,0 +1,5 @@
+/build
+/test/build
+/*.so
+/test/test
+/test/msc
